@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %} Log in social {% endblock %}
+{% block content %}
+<div class="row">
+
+    <div class="col-md-8 mx-auto social-container my-2 order-md-1">
+{#        <button class="btn mb-2">#}
+{#            <a href="#">Login with Facebook#}
+{#            </a>#}
+{#        </button>#}
+{#        <div class="btn mb-2">#}
+{#            <a href="{% url 'social:begin' 'linkedin-oauth2' %}">Login with LinkedIn</a>#}
+{#        </div>#}
+<a class="btn btn-primary" href="{% url 'social:begin' 'google-oauth2' %}">
+        Login
+      </a>
+    </div>
+</div>
+{% endblock %}
