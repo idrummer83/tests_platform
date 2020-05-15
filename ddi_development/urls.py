@@ -16,13 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddi_app.views import signup, home
+from ddi_app.views import home, BasePageView, ProfileView, updateprofile
 
 urlpatterns = [
-    # path('', include('django.contrib.auth.urls')),
-    path('signup/', signup, name='signup'),
+    path('', BasePageView.as_view(), name='index'),
 
-    path('accounts/', include('allauth.urls')),
+    path('accounts/', include('allauth.urls'), name='accounts'),
+    path('accounts/profile/', ProfileView.as_view(), name='profile'),
+    path('accounts/profile/<int:pk>', updateprofile, name='updateprofile'),
+
     path('home', home, name='home'),
 
     path('admin/', admin.site.urls),

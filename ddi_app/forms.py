@@ -4,12 +4,18 @@ from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-# from .models import Receipt, Stack, SmenaValueLast, Composite, UserProfile
+from .models import UserProfile
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import (
     authenticate, get_user_model, password_validation,
 )
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['first_name', 'last_name', 'date_birth', 'about_user']
 
 
 class SignUpForm(UserCreationForm):
