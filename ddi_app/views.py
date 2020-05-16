@@ -24,10 +24,16 @@ def updateprofile(request, pk):
             date_birth = form.cleaned_data['date_birth']
             about_user = form.cleaned_data['about_user']
 
-            UserProfile.objects.create(user_id=pk, first_name=first_name, last_name=last_name, date_birth=date_birth,
+            user_exist = UserProfile.objects.filter(user_id=pk).first()
+
+            if user_exist:
+                UserProfile.objects.update(user_id=pk, first_name=first_name, last_name=last_name, date_birth=date_birth,
+                                       about_user=about_user)
+            else:
+                UserProfile.objects.create(user_id=pk, first_name=first_name, last_name=last_name, date_birth=date_birth,
                                        about_user=about_user).save()
 
-            return redirect('/')
+            return redirect('/accounts/profile/')
         else:
             # messages.error(request, form.errors)
             return redirect('/signup/')
@@ -53,9 +59,9 @@ def updateprofile(request, pk):
 class ProfileView(TemplateView):
     template_name = 'profile.html'
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['user_profile'] = UserProfile.objects.filter(id=kwargs['user'].id)
+        context['user_profile'] = UserProfile.objects.filter(user_id=self.request.user.id).first()
         return context
 
 

@@ -6,15 +6,67 @@
 
     <h4>Welcome {{ user.username }}</h4>
 
-    <form action="{% url 'updateprofile' pk=user.id %}" method="post">
+    <ul>
+        <li>
+            {% if user_profile.first_name %}
+                first name -- {{ user_profile.first_name }}
+                {% else %}
+                first name -- <span class="text-danger">please note this item</span>
+            {% endif %}
+        </li>
+        <li>
+            {% if user_profile.last_name %}
+                last name -- {{ user_profile.last_name }}
+                {% else %}
+                last name -- <span class="text-danger">please note this item</span>
+            {% endif %}
+        </li>
+        <li>
+            {% if user_profile.date_birth %}
+                date of birth -- {{ user_profile.date_birth }}
+                {% else %}
+                date of birth -- <span class="text-danger">please note this item</span>
+            {% endif %}
+        </li>
+        <li>
+            {% if user_profile.about_user %}
+                about -- {{ user_profile.about_user }}
+                {% else %}
+                about -- <span class="text-danger">please note this item</span>
+            {% endif %}
+        </li>
+    </ul>
+
+    <form action="{% url 'updateprofile' pk=user.id %}" method="post" class="col-12 col-md-8">
         {% csrf_token %}
 
-        <input type="text" name="first_name" placeholder="first name">
-        <input type="text" name="last_name" placeholder="last name">
-        <input type="date" name="date_birth" placeholder="date of birth">
-        <textarea name="about_user" cols="3" rows="5" placeholder="tell about yourself"></textarea>
+        <div class="form-group">
+            <input type="text" name="first_name" class="form-control form-control-sm"
+                   placeholder="{% if user_profile.first_name %}{{ user_profile.first_name }}{% else %}first name{% endif %}"
+                   value="{% if user_profile.first_name %}{{ user_profile.first_name }}{% endif %}"
+            >
+        </div>
+        <div class="form-group">
+            <input type="text" name="last_name" class="form-control form-control-sm"
+                   placeholder="{% if user_profile.last_name %}{{ user_profile.last_name }}{% else %}last name{% endif %}"
+                   value="{% if user_profile.last_name %}{{ user_profile.last_name }}{% endif %}"
+            >
+        </div>
+        <div class="form-group">
+            <input type="date" name="date_birth" class="form-control form-control-sm"
+                   placeholder="{% if user_profile.date_birth %}{{ user_profile.date_birth }}{% else %}date of birth{% endif %}"
+                   value="{% if user_profile.date_birth %}{{ user_profile.date_birth|date:'Y-m-d' }}{% endif %}"
+            >
+        </div>
+        <div class="form-group">
+            <textarea name="about_user" class="form-control form-control-sm" cols="3" rows="5"
+                      placeholder="{% if user_profile.about_user %}{{ user_profile.about_user }}{% else %}tell about yourself{% endif %}"
+            >
+            {% if user_profile.about_user %}{{ user_profile.about_user }}{% else %}tell about yourself{% endif %}
+            </textarea>
+        </div>
 
-        <button type="submit">Submit</button>
+        <button class="btn btn-light btn-sm" type="submit">Create/Update</button>
 
     </form>
 
