@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %} Base page {% endblock %}
+
+{% block content %}
+
+    <h4>Create Test</h4>
+
+    <form action="{% url 'create_test' pk=user.id %}" method="post">
+        {% csrf_token %}
+        <input name="user_id" value="{{ user.id }}">
+
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" name="title" class="form-control" value="">
+        </div>
+
+        <div class="form-group">
+            <label for="description">description</label>
+            <textarea name="description" class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="attempts">attempts</label>
+            <input type="number" name="attempts" class="form-control" min="1" value="">
+        </div>
+
+        <button type="submit">submit</button>
+    </form>
+
+{% endblock %}

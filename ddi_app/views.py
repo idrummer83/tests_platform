@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from ddi_app.forms import UserProfileForm
 
-from ddi_app.models import UserProfile
+from ddi_app.models import UserProfile, Test, Answer
 
 # Create your views here.
 
@@ -41,20 +41,6 @@ def updateprofile(request, pk):
         form = UserProfileForm()
     return render(request, 'profile.html', {'form': form})
 
-# def signup(request):
-#     if request.method == 'POST':
-#         form = SignUpForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             username = form.cleaned_data.get('username')
-#             raw_password = form.cleaned_data.get('password1')
-#             user = authenticate(username=username, password=raw_password)
-#             login(request, user)
-#             return redirect('/')
-#     else:
-#         form = SignUpForm()
-#     return render(request, 'registration/signup.html', {'form': form})
-
 
 class ProfileView(TemplateView):
     template_name = 'profile.html'
@@ -68,3 +54,35 @@ class ProfileView(TemplateView):
 @login_required
 def home(request):
     return render(request, 'home.html')
+
+
+class CreateTestPage(TemplateView):
+    template_name = 'create_test_page.html'
+
+
+class CreateAnswersPage(TemplateView):
+    template_name = 'create_answers_page.html'
+
+
+def create_test(request, pk):
+    if request.method == 'POST':
+        user = request.POST['user_id']
+        title = request.POST['title']
+        description = request.POST['description']
+        attempts = request.POST['attempts']
+
+        Test.objects.create(user_id=user, title=title, description=description, attempts=attempts).save()
+
+        return redirect('/create_answers_page/')
+
+
+def create_answers(request):
+    if request.method == 'POST':
+        user = request.POST['user_id']
+        title = request.POST['title']
+        description = request.POST['description']
+        attempts = request.POST['attempts']
+
+        Answer.objects.create(user=user, title=title, description=description, attempts=attempts).save()
+
+        return redirect('/create_answers_page/')

@@ -16,14 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddi_app.views import home, BasePageView, ProfileView, updateprofile
+from ddi_app.views import home, BasePageView, ProfileView, updateprofile, CreateTestPage, create_test,\
+    CreateAnswersPage, create_answers
 
 urlpatterns = [
     path('', BasePageView.as_view(), name='index'),
 
     path('accounts/', include('allauth.urls'), name='accounts'),
     path('accounts/profile/', ProfileView.as_view(), name='profile'),
-    path('accounts/profile/<int:pk>', updateprofile, name='updateprofile'),
+    path('accounts/profile/<int:pk>/', updateprofile, name='updateprofile'),
+
+    path('create_test_page/', CreateTestPage.as_view(), name='create_test_page'),
+    path('create_test/<int:pk>/', create_test, name='create_test'),
+    path('create_answers_page/', CreateAnswersPage.as_view(), name='create_answers_page'),
+    path('create_answers/<int:pk>/', create_answers, name='create_answers'),
 
     path('home', home, name='home'),
 

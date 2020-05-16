@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %} Base page {% endblock %}
+
+{% block content %}
+
+    <h4>Create Answers</h4>
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <button type="submit">submit</button>
+    </form>
+
+{% endblock %}
