@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from ddi_app.forms import UserProfileForm
 
-from ddi_app.models import UserProfile, Test, Answer
+from ddi_app.models import UserProfile, Test, QuestionAnswer
 
 # Create your views here.
 
@@ -60,29 +60,62 @@ class CreateTestPage(TemplateView):
     template_name = 'create_test_page.html'
 
 
-class CreateAnswersPage(TemplateView):
-    template_name = 'create_answers_page.html'
+class CreateQuestionPage(TemplateView):
+    template_name = 'create_question_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['test_id'] = kwargs['pk']
+        return context
 
 
 def create_test(request, pk):
     if request.method == 'POST':
-        user = request.POST['user_id']
         title = request.POST['title']
         description = request.POST['description']
         attempts = request.POST['attempts']
 
-        Test.objects.create(user_id=user, title=title, description=description, attempts=attempts).save()
+        Test.objects.create(user_id=pk, title=title, description=description, attempts=attempts).save()
+        last = Test.objects.all().last()
 
-        return redirect('/create_answers_page/')
+        return redirect('/create_question_page/{}'.format(last.id))
 
 
-def create_answers(request):
+def create_question(request, pk):
     if request.method == 'POST':
-        user = request.POST['user_id']
-        title = request.POST['title']
-        description = request.POST['description']
-        attempts = request.POST['attempts']
+        question = request.POST['question']
+        answer_1 = request.POST['answer_1']
+        answer_1_status = request.POST.get('answer_1_status', False)
+        if answer_1_status == 'on':
+            answer_1_status = True
+        else:
+            answer_1_status = False
 
-        Answer.objects.create(user=user, title=title, description=description, attempts=attempts).save()
+        answer_2 = request.POST['answer_2']
+        answer_2_status = request.POST.get('answer_2_status', False)
+        if answer_2_status == 'on':
+            answer_2_status = True
+        else:
+            answer_2_status = False
 
-        return redirect('/create_answers_page/')
+        answer_3 = request.POST['answer_3']
+        answer_3_status = request.POST.get('answer_3_status', False)
+        if answer_3_status == 'on':
+            answer_3_status = True
+        else:
+            answer_3_status = False
+
+        answer_4 = request.POST['answer_4']
+        answer_4_status = request.POST.get('answer_4_status', False)
+        if answer_4_status == 'on':
+            answer_4_status = True
+        else:
+            answer_4_status = False
+
+        QuestionAnswer.objects.create(test_id=pk, question=question, answer_1=answer_1,
+                                      answer_1_status=answer_1_status, answer_2=answer_2,
+                                      answer_2_status=answer_2_status, answer_3=answer_3,
+                                      answer_3_status=answer_3_status, answer_4=answer_4,
+                                      answer_4_status=answer_4_status).save()
+
+        return redirect('/create_question_page/{}'.format(pk))

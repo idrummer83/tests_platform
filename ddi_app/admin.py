@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ddi_app.models import UserProfile, Test, Question, Answer
+from ddi_app.models import UserProfile, Test
 
 # Register your models here.
 
@@ -14,12 +14,12 @@ class UserProfileAdmin(admin.ModelAdmin):
 class TestAdmin(admin.ModelAdmin):
     list_display = ['user', 'title', 'description', 'attempts', 'attempt_passed']
 
+#
+# @admin.register(Question)
+# class QuestionAdmin(admin.ModelAdmin):
+#     list_display = ['test', 'question']
 
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['test', 'question']
 
-
-@admin.register(Answer)
-class AnswerAdmin(admin.ModelAdmin):
-    list_display = ['question', 'answer']
+# @admin.register(Answer)
+# class AnswerAdmin(admin.ModelAdmin):
+#     list_display = ['question', 'answer']
