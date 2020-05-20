@@ -6,6 +6,10 @@
 
     <h4>Create Test</h4>
 
+    <div class="alert alert-warning" role="alert">
+      You have to add minimum 5 questions, otherwise Your test wouldn't be visible.
+    </div>
+
     <form action="{% url 'create_test' pk=user.id %}" method="post">
         {% csrf_token %}
         <input name="user_id" value="{{ user.id }}">

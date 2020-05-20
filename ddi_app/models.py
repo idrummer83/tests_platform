@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     last_name = models.CharField(verbose_name='last name', max_length=150, blank=True)
     date_birth = models.DateField(format('%Y-%m-%d'), null=True, blank=True)
     about_user = models.TextField(blank=True, null=True)
+    question_min_number = models.SmallIntegerField(default=5, verbose_name='minimal number of questions')
 
     def __str__(self):
         return self.first_name
@@ -34,15 +35,6 @@ class Test(models.Model):
         verbose_name_plural = 'tests'
 
 
-# class Question(models.Model):
-#     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='question_test', verbose_name='test')
-#     question = models.CharField(max_length=1500, verbose_name='question')
-#
-#     class Meta:
-#         verbose_name = 'question'
-#         verbose_name_plural = 'questions'
-
-
 class QuestionAnswer(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='question_test', verbose_name='test')
     question = models.CharField(max_length=1500, verbose_name='question')
@@ -60,12 +52,14 @@ class QuestionAnswer(models.Model):
         verbose_name_plural = 'questions'
 
 
-# class Answer(models.Model):
-#     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answer_question', verbose_name='answer')
-#     answer = models.CharField(max_length=1500, verbose_name='answer')
-#     answer_variant = models.BooleanField(default=False, verbose_name='answer variant')
-#
-#     class Meta:
-#         verbose_name = 'answer'
-#         verbose_name_plural = 'answers'
+class ResultAnswer(models.Model):
+    answer_question = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, related_name='answer_question',
+                                        verbose_name='answers')
+    answer_1_status = models.BooleanField(default=False, verbose_name='answer1 variant')
+    answer_2_status = models.BooleanField(default=False, verbose_name='answer2 variant')
+    answer_3_status = models.BooleanField(default=False, verbose_name='answer3 variant')
+    answer_4_status = models.BooleanField(default=False, verbose_name='answer4 variant')
 
+    class Meta:
+        verbose_name = 'answer'
+        verbose_name_plural = 'answers'

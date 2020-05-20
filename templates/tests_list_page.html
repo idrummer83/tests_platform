@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %} All tests list {% endblock %}
+
+{% block content %}
+    <ul>
+        {% for test in tests_list %}
+            <li class="mb-3">
+                <span class="pr-4">{{ test.title }}</span>
+                <a href="{% url 'pass_test_page' pk=test.id %}" class="btn btn-secondary btn-sm">pass the test</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

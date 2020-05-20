@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from ddi_app.forms import UserProfileForm
 
-from ddi_app.models import UserProfile, Test, QuestionAnswer
+from ddi_app.models import UserProfile, Test, QuestionAnswer, ResultAnswer
 
 # Create your views here.
 
@@ -47,6 +47,7 @@ class ProfileView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['tests_list'] = Test.objects.filter(user_id=self.request.user.id)
         context['user_profile'] = UserProfile.objects.filter(user_id=self.request.user.id).first()
         return context
 
@@ -119,3 +120,38 @@ def create_question(request, pk):
                                       answer_4_status=answer_4_status).save()
 
         return redirect('/create_question_page/{}'.format(pk))
+
+
+class TestsListView(TemplateView):
+    template_name = 'tests_list_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tests_list'] = Test.objects.all()
+        return context
+
+
+class PassTestPage(TemplateView):
+    template_name = 'pass_test_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['test'] = Test.objects.filter(id=kwargs['pk']).first()
+        context['questions_list'] = QuestionAnswer.objects.filter(test_id=kwargs['pk'])
+        return context
+
+
+def test_answer(request, pk):
+    if request.method == 'POST':
+
+        for i_id in request.POST.getlist('question_id'):
+            qwe = []
+            for i in range(1, 5):
+                s = '{}_answer_{}_status'.format(i_id, i)
+                if request.POST.get(s) == 'on':
+                    qwe.append(True)
+                else:
+                    qwe.append(False)
+            ResultAnswer.objects.create(answer_question_id=i_id, answer_1_status=qwe[0], answer_2_status=qwe[1],
+                                        answer_3_status=qwe[2],answer_4_status=qwe[3]).save()
+    pass
