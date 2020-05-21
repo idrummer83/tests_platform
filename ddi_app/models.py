@@ -53,6 +53,8 @@ class QuestionAnswer(models.Model):
 
 
 class ResultAnswer(models.Model):
+    user_res = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_res',
+                                  verbose_name='user_res')
     answer_question = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, related_name='answer_question',
                                         verbose_name='answers')
     answer_1_status = models.BooleanField(default=False, verbose_name='answer1 variant')
@@ -63,3 +65,10 @@ class ResultAnswer(models.Model):
     class Meta:
         verbose_name = 'answer'
         verbose_name_plural = 'answers'
+
+
+class UserStatistic(models.Model):
+    test_id = models.SmallIntegerField(verbose_name='test answer')
+    user_stat = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_stat', verbose_name='user_statistic')
+    answer_attempt_passed = models.SmallIntegerField(default=0, verbose_name='number of passed attempts')
+

@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from ddi_app.forms import UserProfileForm
 
-from ddi_app.models import UserProfile, Test, QuestionAnswer, ResultAnswer
+from ddi_app.models import UserProfile, Test, QuestionAnswer, ResultAnswer, UserStatistic
 
 # Create your views here.
 
@@ -142,6 +142,16 @@ class PassTestPage(TemplateView):
 
 
 def test_answer(request, pk):
+    current_user = request.user.id
+    test = Test.objects.filter(id=pk).only('attempt_passed').first()
+    answ = UserStatistic.objects.filter(user_stat_id=current_user,test_id=test.id).first()
+    print('dif', current_user, test.attempts, answ)
+
+    if answ:
+        print('go')
+    else:
+        print('passed')
+
     if request.method == 'POST':
 
         for i_id in request.POST.getlist('question_id'):
@@ -152,6 +162,7 @@ def test_answer(request, pk):
                     qwe.append(True)
                 else:
                     qwe.append(False)
-            ResultAnswer.objects.create(answer_question_id=i_id, answer_1_status=qwe[0], answer_2_status=qwe[1],
+            ResultAnswer.objects.create(user_res_id=current_user,answer_question_id=i_id, answer_1_status=qwe[0], answer_2_status=qwe[1],
                                         answer_3_status=qwe[2],answer_4_status=qwe[3]).save()
+        UserStatistic.objects.create(test_id=test.id,user_stat_id=current_user,answer_attempt_passed=1).save()
     pass
