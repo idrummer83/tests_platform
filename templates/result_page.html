@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block title %} Result page {% endblock %}
+
+{% block content %}
+    {{ result.correct_answer_number }} - num right answers <br>
+    {{ result.answer_attempt_passed }} - num test passed
+{% endblock %}

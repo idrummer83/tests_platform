@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from ddi_app.forms import UserProfileForm
 
-from ddi_app.models import UserProfile, Test, QuestionAnswer, ResultAnswer, UserStatistic
+from ddi_app.models import UserProfile, Test, QuestionAnswer, UserStatistic
 
 # Create your views here.
 
@@ -142,27 +142,43 @@ class PassTestPage(TemplateView):
 
 
 def test_answer(request, pk):
-    current_user = request.user.id
-    test = Test.objects.filter(id=pk).only('attempt_passed').first()
-    answ = UserStatistic.objects.filter(user_stat_id=current_user,test_id=test.id).first()
-    print('dif', current_user, test.attempts, answ)
+    # current_user = request.user.id
+    test = Test.objects.filter(id=pk).only('attempts').first()
+    print('t', test.attempts)
+    answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only('answer_attempt_passed').first()
+    qw_answ = QuestionAnswer.objects.filter(test_id=pk).only('answer_1_status', 'answer_2_status', 'answer_3_status', 'answer_4_status')
+    attempt_passed = 1
 
-    if answ:
+    if test.attempts > answ.answer_attempt_passed:
         print('go')
     else:
         print('passed')
 
+    # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
-
-        for i_id in request.POST.getlist('question_id'):
+        qqq = []
+        for q_id in request.POST.getlist('question_id'):
             qwe = []
             for i in range(1, 5):
-                s = '{}_answer_{}_status'.format(i_id, i)
+                s = '{}_answer_{}_status'.format(q_id, i)
                 if request.POST.get(s) == 'on':
-                    qwe.append(True)
-                else:
-                    qwe.append(False)
-            ResultAnswer.objects.create(user_res_id=current_user,answer_question_id=i_id, answer_1_status=qwe[0], answer_2_status=qwe[1],
-                                        answer_3_status=qwe[2],answer_4_status=qwe[3]).save()
-        UserStatistic.objects.create(test_id=test.id,user_stat_id=current_user,answer_attempt_passed=1).save()
-    pass
+                    qwe.append(('{}'.format(q_id),'answer_{}_status'.format(i), True))
+            qqq.append(qwe)
+        result = []
+        for x in qqq:
+            answer = vars(qw_answ.filter(id=int(x[0][0])).first())
+
+            if answer[x[0][1]] is x[0][2]:
+                result.append('question id-{} passed'.format(int(x[0][0])))
+        UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id, answer_attempt_passed=attempt_passed + 1,
+                                     answer_percent=1, correct_answer_number=len(result)).save()
+    return redirect('/result_page/{}'.format(pk))
+
+
+class ResultPage(TemplateView):
+    template_name = 'result_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['result'] = UserStatistic.objects.filter(test_id=kwargs['pk']).first()
+        return context
