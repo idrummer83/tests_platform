@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from django.views.generic import TemplateView
 
@@ -181,4 +183,24 @@ class ResultPage(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['result'] = UserStatistic.objects.filter(test_id=kwargs['pk']).first()
+        return context
+
+
+class Filter(TemplateView):
+    template_name = "tests_list_page.html"
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(Filter, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tests_list = Test.objects.all()
+        if self.request.method == 'GET':
+            if self.request.GET.get('search'):
+                search_text = self.request.GET.get('search')
+                search_result = Test.objects.filter(title__icontains=search_text)
+                context['tests_list'] = search_result
+                return context
+        context['tests_list'] = tests_list
         return context
