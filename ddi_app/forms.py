@@ -4,12 +4,18 @@ from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-from .models import UserProfile
+from .models import UserProfile, Comment
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import (
     authenticate, get_user_model, password_validation,
 )
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['comment']
 
 
 class UserProfileForm(forms.ModelForm):

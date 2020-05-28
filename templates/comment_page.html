@@ -1,0 +1,12 @@
+
+<form action="{% url 'comment_page' pk=test.id %}" method="POST">
+    {% csrf_token %}
+
+    <input hidden value="{{ test.id }}" name="test">
+
+    <div class="form-group">
+        <label for="test_comment">Your comment about test</label>
+        <textarea class="form-control col-6 mb-3" name="comment" id="test_comment" rows="5"></textarea>
+        <button type="submit">Submit</button>
+    </div>
+</form>

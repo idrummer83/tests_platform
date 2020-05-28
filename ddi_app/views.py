@@ -3,12 +3,12 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
+from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 
-from ddi_app.forms import UserProfileForm
+from ddi_app.forms import UserProfileForm, CommentForm
 
-from ddi_app.models import UserProfile, Test, QuestionAnswer, UserStatistic
+from ddi_app.models import UserProfile, Test, QuestionAnswer, UserStatistic, Comment
 
 # Create your views here.
 
@@ -124,6 +124,16 @@ def create_question(request, pk):
         return redirect('/create_question_page/{}'.format(pk))
 
 
+class TestView(TemplateView):
+    template_name = 'test_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['test'] = Test.objects.filter(id=kwargs['pk']).first()
+        context['comments'] = Comment.objects.filter(test_id=kwargs['pk'])
+        return context
+
+
 class TestsListView(TemplateView):
     template_name = 'tests_list_page.html'
 
@@ -204,3 +214,17 @@ class Filter(TemplateView):
                 return context
         context['tests_list'] = tests_list
         return context
+
+
+class CommentView(FormView):
+    template_name = "comment_page.html"
+    form_class = CommentForm
+
+    def form_valid(self, form):
+        user = self.request.user.id
+        comment = form.cleaned_data['comment']
+        Comment.objects.create(user_id=user, test_id=self.kwargs['pk'], comment=comment).save()
+        return redirect('/test_page/{}'.format(self.kwargs['pk']))
+
+    def form_invalid(self, form):
+        return super().form_valid(form)

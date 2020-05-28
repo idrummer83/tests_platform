@@ -77,3 +77,11 @@ class UserStatistic(models.Model):
     class Meta:
         verbose_name = 'user statistic'
 
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comment', verbose_name='user_comment')
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='test_comment', verbose_name='test_comment')
+    comment = models.TextField(verbose_name='user comment')
+
+    class Meta:
+        verbose_name = 'user comment'

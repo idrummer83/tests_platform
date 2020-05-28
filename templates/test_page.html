@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h5 class="text-center mb-5">Test page</h5>
+
+    <div class="row">
+        <div class="col-7">
+            <h4 class="mb-4">{{ test.title }}</h4>
+            <p>{{ test.description }}</p>
+
+            <h4>Leave comment about test</h4>
+            {% include 'comment_page.html' %}
+        </div>
+        <div class="col-5">
+            <h4 class="mb-4">Comments</h4>
+
+            <ul class="list-unstyled">
+                {% for comment in comments %}
+                    <li>{{ comment.comment }}</li>
+                    <li><hr></li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+
+{% endblock %}

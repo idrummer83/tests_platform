@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from ddi_app.views import home, BasePageView, ProfileView, updateprofile, CreateTestPage, create_test,\
-    CreateQuestionPage, create_question, TestsListView, PassTestPage, test_answer, ResultPage, Filter
+    CreateQuestionPage, create_question,TestView, TestsListView, PassTestPage, test_answer, ResultPage, Filter, CommentView
 
 urlpatterns = [
     path('', BasePageView.as_view(), name='index'),
@@ -32,12 +32,14 @@ urlpatterns = [
     path('create_question_page/<int:pk>/', CreateQuestionPage.as_view(), name='create_question_page'),
     path('create_question/<int:pk>/', create_question, name='create_question'),
 
+    path('test_page/<int:pk>/', TestView.as_view(), name='test_page'),
     path('tests_list_page/', TestsListView.as_view(), name='tests_list_page'),
     path('pass_test_page/<int:pk>/', PassTestPage.as_view(), name='pass_test_page'),
     path('test_answer/<int:pk>/', test_answer, name='test_answer'),
     path('result_page/<int:pk>/', ResultPage.as_view(), name='result_page'),
 
     path('search_page/', Filter.as_view(), name='search_page'),
+    path('comment_page/<int:pk>/', CommentView.as_view(), name='comment_page'),
 
     path('home', home, name='home'),
 
