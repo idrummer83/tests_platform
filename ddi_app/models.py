@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from datetime import date
+
 # Create your models here.
 
 
@@ -25,7 +27,7 @@ class Test(models.Model):
     title = models.CharField(max_length=500, verbose_name='title')
     description = models.TextField(max_length=2000, verbose_name='description')
     attempts = models.SmallIntegerField(default=2, verbose_name='number of attempts')
-    attempt_passed = models.SmallIntegerField(default=0, verbose_name='number of passed attempts') # not used
+    date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.title
@@ -52,27 +54,13 @@ class QuestionAnswer(models.Model):
         verbose_name_plural = 'questions'
 
 
-# class ResultAnswer(models.Model):
-#     user_res = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_res',
-#                                   verbose_name='user_res')
-#     answer_question = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE, related_name='answer_question',
-#                                         verbose_name='answers')
-#     answer_1_status = models.BooleanField(default=False, verbose_name='answer1 variant')
-#     answer_2_status = models.BooleanField(default=False, verbose_name='answer2 variant')
-#     answer_3_status = models.BooleanField(default=False, verbose_name='answer3 variant')
-#     answer_4_status = models.BooleanField(default=False, verbose_name='answer4 variant')
-#
-#     class Meta:
-#         verbose_name = 'answer'
-#         verbose_name_plural = 'answers'
-
-
 class UserStatistic(models.Model):
     test_id = models.SmallIntegerField(verbose_name='test answer')
     user_stat = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_stat', verbose_name='user_statistic')
     answer_attempt_passed = models.SmallIntegerField(default=0, verbose_name='number of passed attempts')
     answer_percent = models.SmallIntegerField(verbose_name='answer in percents')
     correct_answer_number = models.SmallIntegerField(verbose_name='correct_answer_number')
+    date = models.DateField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'user statistic'

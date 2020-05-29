@@ -9,7 +9,6 @@
                 <a href="{% url 'test_page' pk=test.id %}" class="">
                     <span class="pr-4">{{ test.title }}</span>
                 </a>
-                <a href="{% url 'pass_test_page' pk=test.id %}" class="btn btn-secondary btn-sm">pass the test</a>
             </li>
         {% endfor %}
     </ul>

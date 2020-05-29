@@ -7,16 +7,18 @@
     <form action="{% url 'test_answer' pk=test.id %}" method="post">
         {% csrf_token %}
         <div>
-            <input type="text" name="test_id" value="{{ test.id }}">
-            {{ test.title }}
-            {{ test.description }}
+            <input type="text" hidden name="test_id" value="{{ test.id }}">
+            <h4>{{ test.title }}</h4>
+            <p>{{ test.description }}</p>
         </div>
 
         <ul>
             {% for question in questions_list %}
                 <li class="mb-3">
-                    <input type="text" name="question_id" value="{{ question.id }}">
+                    <hr>
+                    <input type="text" hidden name="question_id" value="{{ question.id }}">
                     <span class="pr-4">{{ question.question }}</span>
+                    <hr>
                     <div class="d-flex justify-content-between">
                         <span>
                             <span class="pr-5">{{ question.answer_1 }}</span>

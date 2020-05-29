@@ -5,6 +5,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
+from django.db.models import Count, F, Value
+
 
 from ddi_app.forms import UserProfileForm, CommentForm
 
@@ -139,7 +141,8 @@ class TestsListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tests_list'] = Test.objects.all()
+        # UserStatistic.objects.filter(user_stat_id=kwargs['pk'])
+        context['tests_list'] = Test.objects.order_by('date')
         return context
 
 
@@ -157,14 +160,24 @@ def test_answer(request, pk):
     # current_user = request.user.id
     test = Test.objects.filter(id=pk).only('attempts').first()
     print('t', test.attempts)
-    answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only('answer_attempt_passed').first()
+    # answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only('answer_attempt_passed').first()
     qw_answ = QuestionAnswer.objects.filter(test_id=pk).only('answer_1_status', 'answer_2_status', 'answer_3_status', 'answer_4_status')
-    attempt_passed = 1
-
-    if test.attempts > answ.answer_attempt_passed:
-        print('go')
+    attempt_passed = 0
+    try:
+        answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only(
+            'answer_attempt_passed').first()
+        attempt_passed = answ.answer_attempt_passed
+        print('111', attempt_passed)
+    except AttributeError:
+        print('not exist')
     else:
-        print('passed')
+        attempt_passed = 1
+        print('222', attempt_passed)
+
+    # if test.attempts > answ.answer_attempt_passed:
+    #     print('go')
+    # else:
+    #     print('passed')
 
     # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
@@ -182,8 +195,10 @@ def test_answer(request, pk):
 
             if answer[x[0][1]] is x[0][2]:
                 result.append('question id-{} passed'.format(int(x[0][0])))
-        UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id, answer_attempt_passed=attempt_passed + 1,
-                                     answer_percent=1, correct_answer_number=len(result)).save()
+        percent = (len(result)/qw_answ.count())*100
+        UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id,
+                                     answer_attempt_passed=attempt_passed,
+                                     answer_percent=percent, correct_answer_number=len(result)).save()
     return redirect('/result_page/{}'.format(pk))
 
 
@@ -192,7 +207,7 @@ class ResultPage(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['result'] = UserStatistic.objects.filter(test_id=kwargs['pk']).first()
+        context['result'] = UserStatistic.objects.filter(test_id=kwargs['pk']).last()
         return context
 
 

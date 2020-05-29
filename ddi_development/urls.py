@@ -33,7 +33,7 @@ urlpatterns = [
     path('create_question/<int:pk>/', create_question, name='create_question'),
 
     path('test_page/<int:pk>/', TestView.as_view(), name='test_page'),
-    path('tests_list_page/', TestsListView.as_view(), name='tests_list_page'),
+    path('tests_list_page/<int:pk>/', TestsListView.as_view(), name='tests_list_page'),
     path('pass_test_page/<int:pk>/', PassTestPage.as_view(), name='pass_test_page'),
     path('test_answer/<int:pk>/', test_answer, name='test_answer'),
     path('result_page/<int:pk>/', ResultPage.as_view(), name='result_page'),

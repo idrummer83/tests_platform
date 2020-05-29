@@ -3,6 +3,10 @@
 {% block title %} Result page {% endblock %}
 
 {% block content %}
-    {{ result.correct_answer_number }} - num right answers <br>
-    {{ result.answer_attempt_passed }} - num test passed
+    <h4>Result page</h4>
+    <ul>
+        <li>right answers - {{ result.correct_answer_number }}</li>
+        <li>test passed times - {{ result.answer_attempt_passed }}</li>
+        <li>result in percent - {{ result.answer_percent }}%</li>
+    </ul>
 {% endblock %}
