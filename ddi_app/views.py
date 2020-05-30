@@ -70,6 +70,7 @@ class CreateQuestionPage(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['test_questions'] = QuestionAnswer.objects.filter(test_id=kwargs['pk']).count()
         context['test_id'] = kwargs['pk']
         return context
 
@@ -122,6 +123,10 @@ def create_question(request, pk):
                                       answer_2_status=answer_2_status, answer_3=answer_3,
                                       answer_3_status=answer_3_status, answer_4=answer_4,
                                       answer_4_status=answer_4_status).save()
+        test_min_question = Test.objects.filter(id=pk).values_list('question_min_number', flat=True).first()
+        question_count = QuestionAnswer.objects.filter(test_id=pk).count()
+        if test_min_question < question_count:
+            Test.objects.filter(id=pk).update(complete=True)
 
         return redirect('/create_question_page/{}'.format(pk))
 
@@ -141,8 +146,9 @@ class TestsListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # UserStatistic.objects.filter(user_stat_id=kwargs['pk'])
-        context['tests_list'] = Test.objects.order_by('date')
+        user_stat_list = UserStatistic.objects.filter(user_stat_id=kwargs['pk']).values_list('test_id', flat=True)
+        context['passed_tests_list'] = Test.objects.filter(id__in=user_stat_list).order_by('date').reverse()
+        context['all_tests_list'] = Test.objects.filter(complete=True).order_by('date').reverse()
         return context
 
 
@@ -173,11 +179,6 @@ def test_answer(request, pk):
     else:
         attempt_passed = 1
         print('222', attempt_passed)
-
-    # if test.attempts > answ.answer_attempt_passed:
-    #     print('go')
-    # else:
-    #     print('passed')
 
     # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
@@ -225,9 +226,9 @@ class Filter(TemplateView):
             if self.request.GET.get('search'):
                 search_text = self.request.GET.get('search')
                 search_result = Test.objects.filter(title__icontains=search_text)
-                context['tests_list'] = search_result
+                context['all_tests_list'] = search_result
                 return context
-        context['tests_list'] = tests_list
+        context['all_tests_list'] = tests_list
         return context
 
 

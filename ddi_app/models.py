@@ -12,7 +12,6 @@ class UserProfile(models.Model):
     last_name = models.CharField(verbose_name='last name', max_length=150, blank=True)
     date_birth = models.DateField(format('%Y-%m-%d'), null=True, blank=True)
     about_user = models.TextField(blank=True, null=True)
-    question_min_number = models.SmallIntegerField(default=5, verbose_name='minimal number of questions')
 
     def __str__(self):
         return self.first_name
@@ -27,6 +26,8 @@ class Test(models.Model):
     title = models.CharField(max_length=500, verbose_name='title')
     description = models.TextField(max_length=2000, verbose_name='description')
     attempts = models.SmallIntegerField(default=2, verbose_name='number of attempts')
+    question_min_number = models.SmallIntegerField(default=5, verbose_name='minimal number of questions')
+    complete = models.BooleanField(default=False)
     date = models.DateField(auto_now_add=True)
 
     def __str__(self):

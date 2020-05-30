@@ -11,12 +11,15 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'tests_list_page' pk=user.id %}">Tests list</a>
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="{% url 'search_page' %}" method="get">
-                <input required class="form-control mr-sm-2" name="search" type="text" value="" placeholder="search..." aria-label="Search">
-
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+{#            <form class="form-inline my-2 my-lg-0" action="{% url 'search_page' %}" method="get">#}
+{#                <input required class="form-control mr-sm-2" name="search" type="text" value="" placeholder="search..." aria-label="Search">#}
+{##}
+{#                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>#}
+{#            </form>#}
         </div>
     </nav>
 </div>

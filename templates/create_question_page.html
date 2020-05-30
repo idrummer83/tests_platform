@@ -6,6 +6,14 @@
 
     <h4>Create Question</h4>
 
+    <p>{{ test_questions }} - created question to test</p>
+
+    {% if test_questions > 5 %}
+        <div class="alert alert-warning" role="alert">
+            Count of questions complete. You can leave this page.
+        </div>
+    {% endif %}
+
     <form action="{% url 'create_question' pk=test_id %}" method="post">
         {% csrf_token %}
 
