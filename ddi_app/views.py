@@ -5,8 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
-from django.db.models import Count, F, Value
-
+from django.contrib import messages
 
 from ddi_app.forms import UserProfileForm, CommentForm
 
@@ -163,43 +162,41 @@ class PassTestPage(TemplateView):
 
 
 def test_answer(request, pk):
-    # current_user = request.user.id
-    test = Test.objects.filter(id=pk).only('attempts').first()
-    print('t', test.attempts)
-    # answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only('answer_attempt_passed').first()
     qw_answ = QuestionAnswer.objects.filter(test_id=pk).only('answer_1_status', 'answer_2_status', 'answer_3_status', 'answer_4_status')
-    attempt_passed = 0
     try:
         answ = UserStatistic.objects.filter(user_stat_id=request.user.id, test_id=pk).only(
-            'answer_attempt_passed').first()
+            'answer_attempt_passed').last()
         attempt_passed = answ.answer_attempt_passed
-        print('111', attempt_passed)
+        attempt_passed += 1
     except AttributeError:
-        print('not exist')
-    else:
         attempt_passed = 1
-        print('222', attempt_passed)
 
     # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
-        qqq = []
+        wrap_lst_answers = []
         for q_id in request.POST.getlist('question_id'):
-            qwe = []
+            list_answers = []
             for i in range(1, 5):
                 s = '{}_answer_{}_status'.format(q_id, i)
                 if request.POST.get(s) == 'on':
-                    qwe.append(('{}'.format(q_id),'answer_{}_status'.format(i), True))
-            qqq.append(qwe)
+                    list_answers.append(('{}'.format(q_id),'answer_{}_status'.format(i), True))
+            wrap_lst_answers.append(list_answers)
         result = []
-        for x in qqq:
-            answer = vars(qw_answ.filter(id=int(x[0][0])).first())
+        try:
+            for x in wrap_lst_answers:
+                answer = vars(qw_answ.filter(id=int(x[0][0])).first())
 
-            if answer[x[0][1]] is x[0][2]:
-                result.append('question id-{} passed'.format(int(x[0][0])))
+                if answer[x[0][1]] is x[0][2]:
+                    result.append('question id-{} passed'.format(int(x[0][0])))
+        except:
+            messages.error(request, 'Empty or excess point, remind you - every question has only ONE answer.')
+            return redirect('/pass_test_page/{}'.format(pk))
+
         percent = (len(result)/qw_answ.count())*100
         UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id,
                                      answer_attempt_passed=attempt_passed,
                                      answer_percent=percent, correct_answer_number=len(result)).save()
+
     return redirect('/result_page/{}'.format(pk))
 
 
