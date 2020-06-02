@@ -12,6 +12,7 @@ class UserProfile(models.Model):
     last_name = models.CharField(verbose_name='last name', max_length=150, blank=True)
     date_birth = models.DateField(format('%Y-%m-%d'), null=True, blank=True)
     about_user = models.TextField(blank=True, null=True)
+    photo = models.ImageField(upload_to='images/', blank=True)
 
     def __str__(self):
         return self.first_name
@@ -57,7 +58,7 @@ class QuestionAnswer(models.Model):
 
 class UserStatistic(models.Model):
     test_id = models.SmallIntegerField(verbose_name='test answer')
-    user_stat = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_stat', verbose_name='user_statistic')
+    user_stat = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_stat', verbose_name='user_statistic')
     answer_attempt_passed = models.SmallIntegerField(default=0, verbose_name='number of passed attempts')
     answer_percent = models.SmallIntegerField(verbose_name='answer in percents')
     correct_answer_number = models.SmallIntegerField(verbose_name='correct_answer_number')

@@ -21,7 +21,7 @@ class CommentForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'date_birth', 'about_user']
+        fields = ['first_name', 'last_name', 'date_birth', 'about_user', 'photo']
 
 
 class SignUpForm(UserCreationForm):

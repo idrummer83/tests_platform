@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
@@ -14,38 +15,41 @@ from ddi_app.models import UserProfile, Test, QuestionAnswer, UserStatistic, Com
 # Create your views here.
 
 
-class BasePageView(TemplateView):
+class BasePageView(TemplateView, LoginRequiredMixin):
     template_name = 'index.html'
 
-
+from django.core.files.storage import FileSystemStorage
 def updateprofile(request, pk):
     if request.method == 'POST':
-        form = UserProfileForm(request.POST or None)
+        form = UserProfileForm(request.POST, request.FILES)
         if form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             date_birth = form.cleaned_data['date_birth']
             about_user = form.cleaned_data['about_user']
+            photo = form.cleaned_data['photo']
+            fs = FileSystemStorage()
+            fs.save(photo.name, photo)
 
             user_exist = UserProfile.objects.filter(user_id=pk).first()
 
             if user_exist:
                 UserProfile.objects.update(user_id=pk, first_name=first_name, last_name=last_name, date_birth=date_birth,
-                                       about_user=about_user)
+                                       about_user=about_user, photo=photo)
             else:
                 UserProfile.objects.create(user_id=pk, first_name=first_name, last_name=last_name, date_birth=date_birth,
-                                       about_user=about_user).save()
+                                       about_user=about_user, photo=photo).save()
 
             return redirect('/accounts/profile/')
         else:
-            # messages.error(request, form.errors)
+            messages.error(request, form.errors)
             return redirect('/signup/')
     else:
         form = UserProfileForm()
     return render(request, 'profile.html', {'form': form})
 
 
-class ProfileView(TemplateView):
+class ProfileView(TemplateView, LoginRequiredMixin):
     template_name = 'profile.html'
 
     def get_context_data(self, **kwargs):
@@ -55,16 +59,11 @@ class ProfileView(TemplateView):
         return context
 
 
-@login_required
-def home(request):
-    return render(request, 'home.html')
-
-
-class CreateTestPage(TemplateView):
+class CreateTestPage(TemplateView, LoginRequiredMixin):
     template_name = 'create_test_page.html'
 
 
-class CreateQuestionPage(TemplateView):
+class CreateQuestionPage(TemplateView, LoginRequiredMixin):
     template_name = 'create_question_page.html'
 
     def get_context_data(self, **kwargs):
@@ -130,7 +129,7 @@ def create_question(request, pk):
         return redirect('/create_question_page/{}'.format(pk))
 
 
-class TestView(TemplateView):
+class TestView(TemplateView, LoginRequiredMixin):
     template_name = 'test_page.html'
 
     def get_context_data(self, **kwargs):
@@ -140,7 +139,7 @@ class TestView(TemplateView):
         return context
 
 
-class TestsListView(TemplateView):
+class TestsListView(TemplateView, LoginRequiredMixin):
     template_name = 'tests_list_page.html'
 
     def get_context_data(self, **kwargs):
@@ -151,7 +150,7 @@ class TestsListView(TemplateView):
         return context
 
 
-class PassTestPage(TemplateView):
+class PassTestPage(TemplateView, LoginRequiredMixin):
     template_name = 'pass_test_page.html'
 
     def get_context_data(self, **kwargs):
@@ -174,10 +173,13 @@ def test_answer(request, pk):
     # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
         wrap_lst_answers = []
+
+        print('---', request.POST)
+
         for q_id in request.POST.getlist('question_id'):
             list_answers = []
             for i in range(1, 5):
-                s = '{}_answer_{}_status'.format(q_id, i)
+                s = '{}_answer'.format(q_id)
                 if request.POST.get(s) == 'on':
                     list_answers.append(('{}'.format(q_id),'answer_{}_status'.format(i), True))
             wrap_lst_answers.append(list_answers)
@@ -200,7 +202,7 @@ def test_answer(request, pk):
     return redirect('/result_page/{}'.format(pk))
 
 
-class ResultPage(TemplateView):
+class ResultPage(TemplateView, LoginRequiredMixin):
     template_name = 'result_page.html'
 
     def get_context_data(self, **kwargs):
@@ -209,7 +211,7 @@ class ResultPage(TemplateView):
         return context
 
 
-class Filter(TemplateView):
+class Filter(TemplateView, LoginRequiredMixin):
     template_name = "tests_list_page.html"
 
     @method_decorator(csrf_exempt)
@@ -229,7 +231,7 @@ class Filter(TemplateView):
         return context
 
 
-class CommentView(FormView):
+class CommentView(FormView, LoginRequiredMixin):
     template_name = "comment_page.html"
     form_class = CommentForm
 

@@ -16,8 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddi_app.views import home, BasePageView, ProfileView, updateprofile, CreateTestPage, create_test,\
-    CreateQuestionPage, create_question,TestView, TestsListView, PassTestPage, test_answer, ResultPage, Filter, CommentView
+from django.conf.urls.static import static
+from django.conf import settings
+
+from ddi_app.views import BasePageView, ProfileView, updateprofile, CreateTestPage, create_test,\
+    CreateQuestionPage, create_question, TestView, TestsListView, PassTestPage, test_answer, ResultPage, Filter, CommentView
 
 urlpatterns = [
     path('', BasePageView.as_view(), name='index'),
@@ -41,7 +44,5 @@ urlpatterns = [
     path('search_page/', Filter.as_view(), name='search_page'),
     path('comment_page/<int:pk>/', CommentView.as_view(), name='comment_page'),
 
-    path('home', home, name='home'),
-
     path('admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
