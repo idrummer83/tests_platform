@@ -94,10 +94,13 @@
             <ul>
                 {% for tests in tests_list %}
                     <li>
-                        <a href="#">{{ tests }}</a>
+                        {{ tests }}
                     </li>
                 {% endfor %}
             </ul>
+            <div class="alert alert-warning" role="alert">
+                If You not see created test, it's means that number of questions is less than 5!!!!
+            </div>
         </div>
     </div>
 

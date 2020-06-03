@@ -37,6 +37,14 @@
                     </li>
                 {% endfor %}
             </ul>
+            <h4>Tests denied</h4>
+            <ul>
+                {% for passed in tests_denied %}
+                    <li class="mb-3">
+                        <span class="pr-4">{{ passed.title }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 

@@ -10,7 +10,8 @@
 
     {% if test_questions > 5 %}
         <div class="alert alert-warning" role="alert">
-            Count of questions complete. You can leave this page.
+            Count of questions complete. You can leave this page. Go to
+            <a href="{% url 'tests_list_page' pk=user.id %}">All tests list</a>
         </div>
     {% endif %}
 

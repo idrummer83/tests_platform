@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.storage import FileSystemStorage
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
@@ -15,10 +16,11 @@ from ddi_app.models import UserProfile, Test, QuestionAnswer, UserStatistic, Com
 # Create your views here.
 
 
-class BasePageView(TemplateView, LoginRequiredMixin):
+class BasePageView(LoginRequiredMixin, TemplateView):
     template_name = 'index.html'
 
-from django.core.files.storage import FileSystemStorage
+
+@login_required(login_url='accounts/login')
 def updateprofile(request, pk):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES)
@@ -49,21 +51,21 @@ def updateprofile(request, pk):
     return render(request, 'profile.html', {'form': form})
 
 
-class ProfileView(TemplateView, LoginRequiredMixin):
+class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profile.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['tests_list'] = Test.objects.filter(user_id=self.request.user.id)
+        context['tests_list'] = Test.objects.filter(user_id=self.request.user.id, complete=True)
         context['user_profile'] = UserProfile.objects.filter(user_id=self.request.user.id).first()
         return context
 
 
-class CreateTestPage(TemplateView, LoginRequiredMixin):
+class CreateTestPage(LoginRequiredMixin, TemplateView):
     template_name = 'create_test_page.html'
 
 
-class CreateQuestionPage(TemplateView, LoginRequiredMixin):
+class CreateQuestionPage(LoginRequiredMixin, TemplateView):
     template_name = 'create_question_page.html'
 
     def get_context_data(self, **kwargs):
@@ -73,6 +75,7 @@ class CreateQuestionPage(TemplateView, LoginRequiredMixin):
         return context
 
 
+@login_required(login_url='accounts/login')
 def create_test(request, pk):
     if request.method == 'POST':
         title = request.POST['title']
@@ -85,6 +88,7 @@ def create_test(request, pk):
         return redirect('/create_question_page/{}'.format(last.id))
 
 
+@login_required(login_url='accounts/login')
 def create_question(request, pk):
     if request.method == 'POST':
         question = request.POST['question']
@@ -129,28 +133,40 @@ def create_question(request, pk):
         return redirect('/create_question_page/{}'.format(pk))
 
 
-class TestView(TemplateView, LoginRequiredMixin):
+class TestView(LoginRequiredMixin, TemplateView):
     template_name = 'test_page.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        id_denied = UserStatistic.objects.filter(test_denied=True).values_list('test_id', flat=True)
+        test_denied = Test.objects.filter(id=kwargs['pk']).first()
+
+        denied = False
+        if test_denied.id in id_denied:
+            denied = True
+
+        context['denied'] = denied
         context['test'] = Test.objects.filter(id=kwargs['pk']).first()
         context['comments'] = Comment.objects.filter(test_id=kwargs['pk'])
         return context
 
 
-class TestsListView(TemplateView, LoginRequiredMixin):
+class TestsListView(LoginRequiredMixin, TemplateView):
     template_name = 'tests_list_page.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_stat_list = UserStatistic.objects.filter(user_stat_id=kwargs['pk']).values_list('test_id', flat=True)
+        id_denied = UserStatistic.objects.filter(user_stat_id=kwargs['pk'],test_denied=True).values_list('test_id', flat=True)
+        user_stat_list = UserStatistic.objects.filter(user_stat_id=kwargs['pk']).exclude(test_id__in=id_denied).values_list('test_id', flat=True)
+
         context['passed_tests_list'] = Test.objects.filter(id__in=user_stat_list).order_by('date').reverse()
+        context['tests_denied'] = Test.objects.filter(id__in=id_denied).order_by('date').reverse()
         context['all_tests_list'] = Test.objects.filter(complete=True).order_by('date').reverse()
+
         return context
 
 
-class PassTestPage(TemplateView, LoginRequiredMixin):
+class PassTestPage(LoginRequiredMixin, TemplateView):
     template_name = 'pass_test_page.html'
 
     def get_context_data(self, **kwargs):
@@ -160,6 +176,7 @@ class PassTestPage(TemplateView, LoginRequiredMixin):
         return context
 
 
+@login_required(login_url='accounts/login')
 def test_answer(request, pk):
     qw_answ = QuestionAnswer.objects.filter(test_id=pk).only('answer_1_status', 'answer_2_status', 'answer_3_status', 'answer_4_status')
     try:
@@ -170,11 +187,8 @@ def test_answer(request, pk):
     except AttributeError:
         attempt_passed = 1
 
-    # TODO Destroy this HORROR (((( !!!!!
     if request.method == 'POST':
         wrap_lst_answers = []
-
-        print('---', request.POST)
 
         for q_id in request.POST.getlist('question_id'):
             list_answers = []
@@ -195,7 +209,12 @@ def test_answer(request, pk):
             return redirect('/pass_test_page/{}'.format(pk))
 
         percent = (len(result)/qw_answ.count())*100
-        UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id,
+
+        att = False
+        attempts = Test.objects.filter(id=pk).only('attempts').first()
+        if attempts.attempts == attempt_passed:
+            att = True
+        UserStatistic.objects.create(test_id=pk, user_stat_id=request.user.id, test_denied=att,
                                      answer_attempt_passed=attempt_passed,
                                      answer_percent=percent, correct_answer_number=len(result)).save()
 
@@ -211,7 +230,7 @@ class ResultPage(TemplateView, LoginRequiredMixin):
         return context
 
 
-class Filter(TemplateView, LoginRequiredMixin):
+class Filter(LoginRequiredMixin, TemplateView):
     template_name = "tests_list_page.html"
 
     @method_decorator(csrf_exempt)
@@ -231,7 +250,7 @@ class Filter(TemplateView, LoginRequiredMixin):
         return context
 
 
-class CommentView(FormView, LoginRequiredMixin):
+class CommentView(LoginRequiredMixin, FormView):
     template_name = "comment_page.html"
     form_class = CommentForm
 

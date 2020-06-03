@@ -60,6 +60,7 @@ class UserStatistic(models.Model):
     test_id = models.SmallIntegerField(verbose_name='test answer')
     user_stat = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='user_stat', verbose_name='user_statistic')
     answer_attempt_passed = models.SmallIntegerField(default=0, verbose_name='number of passed attempts')
+    test_denied = models.BooleanField(default=False, verbose_name='test_denied')
     answer_percent = models.SmallIntegerField(verbose_name='answer in percents')
     correct_answer_number = models.SmallIntegerField(verbose_name='correct_answer_number')
     date = models.DateField(auto_now_add=True)
