@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 
     'ddi_app.apps.DdiAppConfig',
+    'fixture_magic',
 ]
 
 SITE_ID = 1
